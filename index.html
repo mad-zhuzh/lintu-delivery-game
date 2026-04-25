@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lintu Delivery Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="widget-shell">
+    <section id="start-screen" class="screen active">
+      <h1>Lintu <br>Delivery Game</h1>
+      <p class="screen-subtitle">Помоги дрону облететь препятствия и доставить посылку.</p>
+      <img class="character-illustration start-illustration" src="assets/drone-happy.png" alt="Дружелюбный дрон Lintu">
+      <div class="instructions">
+        <h2>Управление</h2>
+        <ul>
+          <li>← →: движение дрона влево/вправо</li>
+          <li>Клик мышью: перемещение к точке внутри поля</li>
+          <li>Касание: управление на мобильных устройствах</li>
+        </ul>
+      </div>
+      <button id="start-btn" class="primary-btn">Начать игру</button>
+    </section>
+
+    <section id="game-screen" class="screen">
+      <header class="hud">
+        <div class="lives" id="lives">❤️❤️❤️</div>
+        <div class="message" id="message">Летим к клиенту...</div>
+      </header>
+
+      <div class="progress-wrap">
+        <div class="progress-head">
+          <div class="progress-label">Доставка</div>
+          <div id="progress-percent" class="progress-percent">0%</div>
+        </div>
+        <div class="progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </div>
+
+      <div id="game-area" class="game-area" aria-label="Игровое поле">
+        <div id="drone" class="drone">
+          <span class="drone-prop left"></span>
+          <span class="drone-prop right"></span>
+          <span class="drone-arm left"></span>
+          <span class="drone-arm right"></span>
+          <span class="drone-body"></span>
+          <span class="drone-package"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="win-screen" class="screen">
+      <h1>Доставлено<br>вовремя!</h1>
+      <img class="character-illustration win-illustration" src="assets/drone-win-hearts.png" alt="Счастливый дрон с сердечками">
+      <p class="screen-subtitle win-subtitle">Отличная работа!</p>
+      <div id="confetti-layer" class="confetti-layer"></div>
+      <button id="play-again-btn" class="primary-btn">Играть ещё раз</button>
+    </section>
+
+    <section id="lose-screen" class="screen">
+      <h2>Дрон не справился</h2>
+      <p class="screen-subtitle">Ничего страшного, попробуем ещё раз!</p>
+      <img class="character-illustration lose-illustration" src="assets/drone-panic.png" alt="Дрон в панике">
+      <button id="retry-btn" class="primary-btn">Попробовать снова</button>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
