@@ -42,7 +42,9 @@ const state = {
   spawnAccumulator: 0,
   lastFrame: 0,
   invulnerableUntil: 0,
-  markerRect: null
+  markerRect: null,
+  touchDragActive: false,
+  touchPointerId: null
 };
 
 function showScreen(target) {
@@ -62,6 +64,8 @@ function resetGameState() {
   state.lastFrame = 0;
   state.invulnerableUntil = 0;
   state.markerRect = null;
+  state.touchDragActive = false;
+  state.touchPointerId = null;
 
   state.obstacles.forEach((obs) => obs.el.remove());
   state.obstacles = [];
@@ -425,14 +429,37 @@ gameArea.addEventListener("click", (event) => {
 
 gameArea.addEventListener("pointerdown", (event) => {
   if (!state.running) return;
+  if (event.pointerType === "touch") {
+    state.touchDragActive = true;
+    state.touchPointerId = event.pointerId;
+    return;
+  }
   pointerMoveHandler(event.clientX);
 });
 
 gameArea.addEventListener("pointermove", (event) => {
   if (!state.running) return;
-  if (event.pointerType === "touch") {
+  if (
+    event.pointerType === "touch" &&
+    state.touchDragActive &&
+    event.pointerId === state.touchPointerId
+  ) {
     pointerMoveHandler(event.clientX);
   }
+});
+
+gameArea.addEventListener("pointerup", (event) => {
+  if (event.pointerType !== "touch") return;
+  if (event.pointerId !== state.touchPointerId) return;
+  state.touchDragActive = false;
+  state.touchPointerId = null;
+});
+
+gameArea.addEventListener("pointercancel", (event) => {
+  if (event.pointerType !== "touch") return;
+  if (event.pointerId !== state.touchPointerId) return;
+  state.touchDragActive = false;
+  state.touchPointerId = null;
 });
 
 window.addEventListener("resize", () => {
