@@ -5,6 +5,7 @@ const DRONE_BOTTOM_PADDING = 36;
 const DRONE_BASE_HEIGHT_RATIO = 0.8;
 const WORLD_SPEED_START = 118;
 const WORLD_SPEED_END = 216;
+const WIN_SCREEN_DELAY_MS = 240;
 
 const startScreen = document.getElementById("start-screen");
 const gameScreen = document.getElementById("game-screen");
@@ -44,7 +45,8 @@ const state = {
   invulnerableUntil: 0,
   markerRect: null,
   touchDragActive: false,
-  touchPointerId: null
+  touchPointerId: null,
+  winDelayTimeoutId: null
 };
 
 function showScreen(target) {
@@ -66,6 +68,10 @@ function resetGameState() {
   state.markerRect = null;
   state.touchDragActive = false;
   state.touchPointerId = null;
+  if (state.winDelayTimeoutId) {
+    clearTimeout(state.winDelayTimeoutId);
+    state.winDelayTimeoutId = null;
+  }
 
   state.obstacles.forEach((obs) => obs.el.remove());
   state.obstacles = [];
@@ -352,6 +358,10 @@ function emitConfetti() {
 
 function endGame(isWin) {
   state.running = false;
+  if (state.winDelayTimeoutId) {
+    clearTimeout(state.winDelayTimeoutId);
+    state.winDelayTimeoutId = null;
+  }
   state.obstacles.forEach((obs) => obs.el.remove());
   state.obstacles = [];
   deliveryMarkerEl.classList.remove("visible");
@@ -362,6 +372,16 @@ function endGame(isWin) {
   } else {
     showScreen(loseScreen);
   }
+}
+
+function triggerWinSequence() {
+  if (state.winDelayTimeoutId) return;
+  state.running = false;
+  messageEl.textContent = "Доставка...";
+  state.winDelayTimeoutId = setTimeout(() => {
+    state.winDelayTimeoutId = null;
+    endGame(true);
+  }, WIN_SCREEN_DELAY_MS);
 }
 
 function gameLoop(timestamp) {
@@ -393,7 +413,7 @@ function gameLoop(timestamp) {
   updateObstacles(deltaSec);
   updateDeliveryMarker();
   if (checkDeliveryReached()) {
-    endGame(true);
+    triggerWinSequence();
     return;
   }
   checkCollisions(timestamp);

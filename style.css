@@ -452,6 +452,10 @@ h2 {
   opacity: 1;
 }
 
+.delivery-marker.visible .marker-pin {
+  animation: marker-pulse 0.9s ease-in-out infinite;
+}
+
 .marker-pin {
   position: absolute;
   left: 8px;
@@ -463,6 +467,24 @@ h2 {
   background: linear-gradient(145deg, #3f9bff, #0b64f4);
   border: 2px solid #084fc3;
   box-shadow: 0 5px 12px rgba(11, 100, 244, 0.35);
+}
+
+@keyframes marker-pulse {
+  0%,
+  100% {
+    transform: rotate(-45deg) scale(1);
+    box-shadow:
+      0 6px 12px rgba(11, 100, 244, 0.46),
+      0 0 0 0 rgba(11, 100, 244, 0.32);
+    filter: saturate(1);
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.08);
+    box-shadow:
+      0 8px 18px rgba(11, 100, 244, 0.62),
+      0 0 0 10px rgba(11, 100, 244, 0);
+    filter: saturate(1.2);
+  }
 }
 
 .marker-pin::after {
