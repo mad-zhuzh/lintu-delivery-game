@@ -297,6 +297,9 @@ h2 {
   background-position: center;
   opacity: 0.22;
   filter: saturate(0.72) brightness(1.03);
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
   z-index: 0;
   pointer-events: none;
 }
@@ -322,16 +325,19 @@ h2 {
   background-size: 100% 36px;
   opacity: 0.3;
   animation: flow-lines 1.8s linear infinite;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
   z-index: 1;
   pointer-events: none;
 }
 
 @keyframes flow-lines {
   from {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
   to {
-    transform: translateY(36px);
+    transform: translate3d(0, 36px, 0);
   }
 }
 

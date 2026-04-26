@@ -221,7 +221,7 @@ function updateObstacles(deltaSec) {
   for (let i = state.obstacles.length - 1; i >= 0; i--) {
     const obs = state.obstacles[i];
     obs.y += obs.speed * deltaSec;
-    obs.el.style.transform = `translateY(${obs.y}px)`;
+    obs.el.style.transform = `translateY(${Math.round(obs.y)}px)`;
 
     if (obs.y > areaRect.height + 120) {
       obs.el.remove();
@@ -247,7 +247,7 @@ function updateDeliveryMarker() {
   // Чем ближе к финишу, тем ближе маркер к дрону.
   const targetY = state.droneY - 6;
   const y = -markerHeight + localProgress * (targetY + markerHeight);
-  deliveryMarkerEl.style.transform = `translate(${x}px, ${y}px)`;
+  deliveryMarkerEl.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
   state.markerRect = { x, y, width: markerWidth, height: markerHeight };
 }
 
