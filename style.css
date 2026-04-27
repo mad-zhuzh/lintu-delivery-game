@@ -60,7 +60,7 @@ h2 {
 }
 
 h1 {
-  font-size: 30px;
+  font-size: 34px;
   color: var(--blue-dark);
 }
 
@@ -113,6 +113,9 @@ h2 {
 
 #start-screen .start-illustration {
   order: 3;
+  width: min(200px, 69%);
+  max-height: 220px;
+  object-fit: contain;
   margin-top: auto;
   margin-bottom: auto;
 }
@@ -129,6 +132,9 @@ h2 {
 
 #lose-screen .lose-illustration {
   order: 2;
+  width: min(195px, 66%);
+  max-height: 212px;
+  object-fit: contain;
   margin: auto auto 12px;
 }
 
@@ -162,6 +168,9 @@ h2 {
 
 #win-screen .win-illustration {
   order: 2;
+  width: min(195px, 66%);
+  max-height: 212px;
+  object-fit: contain;
   margin: auto auto 12px;
 }
 
@@ -176,7 +185,7 @@ h2 {
 }
 
 .instructions h2 {
-  font-size: 20px;
+  font-size: 17px;
   margin-bottom: 8px;
 }
 

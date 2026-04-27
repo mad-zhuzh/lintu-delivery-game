@@ -22,14 +22,6 @@
 The source code of this project is licensed under the MIT License.
 See the full text in the [LICENSE](LICENSE) file.
 
-Please note:
-Some visual assets (illustrations) are not original and are used for educational, non-commercial purposes only.  
-They may be subject to separate licenses from their respective authors.
-
 ## Disclaimer
 
 This is a non-commercial educational project.
-
-Some illustrations are sourced from stock platforms (Dreamstime).  
-Author: Muhammad Rizal Abdie.
-If you are the rights holder and want attribution adjusted or content removed — please contact me.
