@@ -341,70 +341,36 @@ h2 {
   }
 }
 
+.sprites {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
 .drone {
   position: absolute;
-  width: 46px;
-  height: 46px;
+  width: 52px;
+  height: 52px;
   z-index: 6;
 }
 
-.drone-arm {
-  position: absolute;
-  width: 17px;
-  height: 2px;
-  background: #808ea9;
-  top: 11px;
-  border-radius: 4px;
+.drone-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
-.drone-arm.left {
-  left: 2px;
+.drone.hit-flash {
+  animation: drone-hit-blink 0.9s linear;
 }
 
-.drone-arm.right {
-  right: 2px;
-}
-
-.drone-body {
-  position: absolute;
-  left: 11px;
-  top: 11px;
-  width: 24px;
-  height: 12px;
-  border-radius: 6px;
-  background: linear-gradient(145deg, #d9e1ee, #8b99b2);
-  border: 1px solid #6f7f99;
-}
-
-.drone-package {
-  position: absolute;
-  left: 14px;
-  top: 24px;
-  width: 18px;
-  height: 14px;
-  border-radius: 3px;
-  background: #d79955;
-  border: 1px solid #bc7d36;
-}
-
-.drone-prop {
-  position: absolute;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(74, 92, 124, 0.35);
-  border-top-color: rgba(74, 92, 124, 0.9);
-  border-right-color: rgba(74, 92, 124, 0.9);
-  border-radius: 50%;
-  top: 0;
-  animation: spin-prop 0.23s linear infinite;
-}
-
-.drone-prop.left {
-  left: 0;
-}
-
-.drone-prop.right {
-  right: 0;
+@keyframes drone-hit-blink {
+  0%, 32% { opacity: 0.45; }
+  33%, 65% { opacity: 1; }
+  66%, 99% { opacity: 0.45; }
+  100% { opacity: 1; }
 }
 
 .obstacle {
@@ -412,43 +378,23 @@ h2 {
   z-index: 4;
 }
 
+.obstacle .obs-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
 .bird {
   width: 52px;
   height: 32px;
-  filter: drop-shadow(0 4px 5px rgba(20, 42, 84, 0.34));
-}
-
-.bird::before,
-.bird::after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  width: 22px;
-  height: 12px;
-  border-top: 4px solid #163869;
-  border-radius: 50% 50% 40% 40%;
-  transform-origin: center 80%;
-}
-
-.bird::before {
-  left: 0;
-  animation: wing-left 0.45s ease-in-out infinite;
-}
-
-.bird::after {
-  right: 0;
-  animation: wing-right 0.45s ease-in-out infinite;
-}
-
-.bird {
-  background: radial-gradient(circle at 50% 70%, #2f5ea3 0 16%, transparent 18%);
 }
 
 .delivery-marker {
   position: absolute;
-  width: 60px;
-  height: 88px;
-  z-index: 3;
+  width: 55px;
+  height: 81px;
+  z-index: 5;
   opacity: 0;
   transition: opacity 0.25s ease;
   pointer-events: none;
@@ -459,20 +405,20 @@ h2 {
 }
 
 .delivery-marker.visible .marker-pin {
-  animation: marker-pulse 0.9s ease-in-out infinite;
+  animation: marker-pulse 0.95s ease-in-out infinite;
 }
 
 .marker-pin {
   position: absolute;
   left: 8px;
   top: 4px;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   background: linear-gradient(145deg, #3f9bff, #0b64f4);
   border: 2px solid #084fc3;
-  box-shadow: 0 5px 12px rgba(11, 100, 244, 0.35);
+  box-shadow: 0 4px 9px rgba(11, 100, 244, 0.26);
 }
 
 @keyframes marker-pulse {
@@ -480,16 +426,16 @@ h2 {
   100% {
     transform: rotate(-45deg) scale(1);
     box-shadow:
-      0 6px 12px rgba(11, 100, 244, 0.46),
-      0 0 0 0 rgba(11, 100, 244, 0.32);
+      0 5px 10px rgba(11, 100, 244, 0.34),
+      0 0 0 0 rgba(11, 100, 244, 0.22);
     filter: saturate(1);
   }
   50% {
-    transform: rotate(-45deg) scale(1.08);
+    transform: rotate(-45deg) scale(1.05);
     box-shadow:
-      0 8px 18px rgba(11, 100, 244, 0.62),
-      0 0 0 10px rgba(11, 100, 244, 0);
-    filter: saturate(1.2);
+      0 6px 13px rgba(11, 100, 244, 0.46),
+      0 0 0 7px rgba(11, 100, 244, 0);
+    filter: saturate(1.12);
   }
 }
 
@@ -500,10 +446,10 @@ h2 {
 .marker-pin::before {
   content: "";
   position: absolute;
-  left: 12px;
-  top: 12px;
-  width: 16px;
-  height: 16px;
+  left: 11px;
+  top: 11px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
   background: rgba(236, 246, 255, 0.96);
   border: 1px solid rgba(8, 79, 195, 0.35);
@@ -514,67 +460,9 @@ h2 {
   height: 46px;
 }
 
-.balloon::before {
-  content: "";
-  position: absolute;
-  left: 2px;
-  top: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #ffd39f 0%, #ffb261 48%, #ff962c 100%);
-  border: 1px solid rgba(223, 134, 36, 0.8);
-  box-shadow: 0 4px 8px rgba(187, 124, 43, 0.2);
-}
-
-.balloon::after {
-  content: "Lintu";
-  position: absolute;
-  left: 12px;
-  top: 17px;
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 0.2px;
-  text-shadow: 0 1px 1px rgba(127, 72, 16, 0.3);
-}
-
-.balloon {
-  background: none;
-}
-
 .cloud {
-  width: 58px;
-  height: 30px;
-  background: rgba(173, 183, 198, 0.82);
-  border: 1px solid rgba(141, 154, 176, 0.95);
-  border-radius: 999px;
-  box-shadow:
-    0 6px 12px rgba(97, 112, 135, 0.28),
-    inset 0 -3px 4px rgba(111, 125, 146, 0.34);
-}
-
-.cloud::before,
-.cloud::after {
-  content: "";
-  position: absolute;
-  background: rgba(181, 192, 208, 0.9);
-  border: 1px solid rgba(142, 156, 178, 0.95);
-  border-radius: 50%;
-}
-
-.cloud::before {
-  width: 26px;
-  height: 24px;
-  left: 7px;
-  top: -13px;
-}
-
-.cloud::after {
-  width: 22px;
-  height: 20px;
-  right: 8px;
-  top: -10px;
+  width: 60px;
+  height: 34px;
 }
 
 .client-scene {
@@ -599,45 +487,6 @@ h2 {
   background: var(--blue);
   border-radius: 16px;
   margin: 6px auto 0;
-}
-
-@keyframes spin-prop {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes wing-flap {
-  0%,
-  100% {
-    transform: translateY(0) scale(1);
-  }
-  50% {
-    transform: translateY(-1px) scale(1.06);
-  }
-}
-
-@keyframes wing-left {
-  0%,
-  100% {
-    transform: rotate(-18deg);
-  }
-  50% {
-    transform: rotate(-2deg);
-  }
-}
-
-@keyframes wing-right {
-  0%,
-  100% {
-    transform: rotate(18deg);
-  }
-  50% {
-    transform: rotate(2deg);
-  }
 }
 
 @keyframes hit-shake {

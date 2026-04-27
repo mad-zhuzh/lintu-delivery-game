@@ -5,7 +5,16 @@ const DRONE_BOTTOM_PADDING = 36;
 const DRONE_BASE_HEIGHT_RATIO = 0.8;
 const WORLD_SPEED_START = 118;
 const WORLD_SPEED_END = 216;
-const WIN_SCREEN_DELAY_MS = 240;
+const WIN_SCREEN_DELAY_MS = 1000;
+const DRONE_HIT_INSET = 11;
+const HIT_FLASH_MS = 900;
+
+const OBSTACLE_TYPES = ["bird", "cloud", "balloon"];
+const OBSTACLE_SVG = {
+  bird: '<svg class="obs-svg" viewBox="0 0 52 32" aria-hidden="true" focusable="false"><use href="#sym-bird"/></svg>',
+  cloud: '<svg class="obs-svg" viewBox="0 0 60 34" aria-hidden="true" focusable="false"><use href="#sym-cloud"/></svg>',
+  balloon: '<svg class="obs-svg" viewBox="0 0 46 46" aria-hidden="true" focusable="false"><use href="#sym-balloon"/></svg>'
+};
 
 const startScreen = document.getElementById("start-screen");
 const gameScreen = document.getElementById("game-screen");
@@ -38,7 +47,7 @@ const state = {
   droneTargetX: 0,
   keys: { left: false, right: false },
   obstacles: [],
-  spawnStats: { bird: 0, cloud: 0, balloon: 0 },
+  spawnStats: createEmptyStats(),
   totalSpawns: 0,
   spawnAccumulator: 0,
   lastFrame: 0,
@@ -46,8 +55,16 @@ const state = {
   markerRect: null,
   touchDragActive: false,
   touchPointerId: null,
-  winDelayTimeoutId: null
+  winDelayTimeoutId: null,
+  winning: false
 };
+
+function createEmptyStats() {
+  return OBSTACLE_TYPES.reduce((acc, type) => {
+    acc[type] = 0;
+    return acc;
+  }, {});
+}
 
 function showScreen(target) {
   [startScreen, gameScreen, winScreen, loseScreen].forEach((screen) => {
@@ -61,13 +78,14 @@ function resetGameState() {
   state.lives = MAX_LIVES;
   state.worldSpeed = WORLD_SPEED_START;
   state.spawnAccumulator = 0;
-  state.spawnStats = { bird: 0, cloud: 0, balloon: 0 };
+  state.spawnStats = createEmptyStats();
   state.totalSpawns = 0;
   state.lastFrame = 0;
   state.invulnerableUntil = 0;
   state.markerRect = null;
   state.touchDragActive = false;
   state.touchPointerId = null;
+  state.winning = false;
   if (state.winDelayTimeoutId) {
     clearTimeout(state.winDelayTimeoutId);
     state.winDelayTimeoutId = null;
@@ -158,6 +176,7 @@ function spawnObstacle() {
 
   const obstacle = document.createElement("div");
   obstacle.classList.add("obstacle", type);
+  obstacle.innerHTML = OBSTACLE_SVG[type];
 
   let width = 28;
   let height = 18;
@@ -175,13 +194,13 @@ function spawnObstacle() {
     hitInsetX = 10;
     hitInsetY = 8;
   } else if (type === "cloud") {
-    width = 54;
-    height = 28;
+    width = 60;
+    height = 34;
     x = 8 + Math.random() * (areaRect.width - width - 16);
     speed *= 0.88;
-    hitInsetX = 11;
-    hitInsetY = 11;
-    // Псевдоэлементы облака выступают сверху, поэтому сдвигаем хитбокс вниз.
+    hitInsetX = 12;
+    hitInsetY = 12;
+    // Хитбокс — нижне-средняя часть силуэта (где плотная заливка).
     hitShiftY = 5;
   } else if (type === "balloon") {
     width = 46;
@@ -232,8 +251,8 @@ function updateObstacles(deltaSec) {
 
 function updateDeliveryMarker() {
   const areaRect = gameArea.getBoundingClientRect();
-  const markerWidth = 60;
-  const markerHeight = 88;
+  const markerWidth = 55;
+  const markerHeight = 81;
   const progressStart = 0.85;
   if (state.progress < progressStart) {
     deliveryMarkerEl.classList.remove("visible");
@@ -251,19 +270,32 @@ function updateDeliveryMarker() {
   state.markerRect = { x, y, width: markerWidth, height: markerHeight };
 }
 
+function getDroneRect() {
+  const w = droneEl.offsetWidth;
+  const h = droneEl.offsetHeight;
+  return {
+    x: state.droneX + DRONE_HIT_INSET,
+    y: state.droneY + DRONE_HIT_INSET,
+    width: Math.max(10, w - DRONE_HIT_INSET * 2),
+    height: Math.max(10, h - DRONE_HIT_INSET * 2)
+  };
+}
+
 function checkDeliveryReached() {
   if (!state.markerRect) return false;
-  const droneRect = {
-    x: state.droneX + 8,
-    y: state.droneY + 8,
-    width: 30,
-    height: 30
-  };
+  // Триггер только когда маркер уже почти полностью доспустился —
+  // иначе создаётся ощущение, что маркер сам «падает» на дрон.
+  const markerFinalY = state.droneY - 6;
+  if (state.markerRect.y < markerFinalY - 14) return false;
+
+  const droneRect = getDroneRect();
+  // Узкий хитбокс точно по штырю — дрон должен оказаться прямо под маркером.
+  const hitWidth = 18;
   const markerHitRect = {
-    x: state.markerRect.x + 10,
-    y: state.markerRect.y + 8,
-    width: state.markerRect.width - 20,
-    height: state.markerRect.height - 16
+    x: state.markerRect.x + state.markerRect.width / 2 - hitWidth / 2,
+    y: state.markerRect.y + 6,
+    width: hitWidth,
+    height: state.markerRect.height - 14
   };
   return intersects(droneRect, markerHitRect);
 }
@@ -278,12 +310,7 @@ function intersects(a, b) {
 function checkCollisions(nowMs) {
   if (nowMs < state.invulnerableUntil) return;
 
-  const droneRect = {
-    x: state.droneX + 8,
-    y: state.droneY + 8,
-    width: 30,
-    height: 30
-  };
+  const droneRect = getDroneRect();
 
   for (const obs of state.obstacles) {
     const obsRect = {
@@ -297,21 +324,7 @@ function checkCollisions(nowMs) {
       state.lives -= 1;
       updateUI();
       state.invulnerableUntil = nowMs + 1200;
-      gameArea.classList.remove("hit");
-      // Форсируем рестарт анимации тряски/вспышки.
-      void gameArea.offsetWidth;
-      gameArea.classList.add("hit");
-      setTimeout(() => gameArea.classList.remove("hit"), 240);
-      droneEl.style.opacity = "0.5";
-      setTimeout(() => {
-        droneEl.style.opacity = "1";
-      }, 300);
-      setTimeout(() => {
-        droneEl.style.opacity = "0.5";
-      }, 600);
-      setTimeout(() => {
-        droneEl.style.opacity = "1";
-      }, 900);
+      triggerHitFx();
 
       if (state.lives <= 0) {
         endGame(false);
@@ -325,13 +338,29 @@ function checkCollisions(nowMs) {
   }
 }
 
+function triggerHitFx() {
+  gameArea.classList.remove("hit");
+  // Форсируем рестарт анимации тряски/вспышки.
+  void gameArea.offsetWidth;
+  gameArea.classList.add("hit");
+  setTimeout(() => gameArea.classList.remove("hit"), 240);
+
+  droneEl.classList.remove("hit-flash");
+  void droneEl.offsetWidth;
+  droneEl.classList.add("hit-flash");
+  setTimeout(() => droneEl.classList.remove("hit-flash"), HIT_FLASH_MS);
+}
+
 function updateDrone(deltaSec) {
   const areaRect = gameArea.getBoundingClientRect();
   const maxX = areaRect.width - droneEl.offsetWidth;
   const keyboardSpeed = 220;
 
-  if (state.keys.left) state.droneTargetX -= keyboardSpeed * deltaSec;
-  if (state.keys.right) state.droneTargetX += keyboardSpeed * deltaSec;
+  // На фазе «долёт к маркеру» ввод заблокирован, дрон сам приходит в цель.
+  if (!state.winning) {
+    if (state.keys.left) state.droneTargetX -= keyboardSpeed * deltaSec;
+    if (state.keys.right) state.droneTargetX += keyboardSpeed * deltaSec;
+  }
 
   state.droneTargetX = Math.max(0, Math.min(maxX, state.droneTargetX));
 
@@ -375,9 +404,18 @@ function endGame(isWin) {
 }
 
 function triggerWinSequence() {
-  if (state.winDelayTimeoutId) return;
-  state.running = false;
-  messageEl.textContent = "Доставка...";
+  if (state.winning) return;
+  state.winning = true;
+  messageEl.textContent = "Доставлено!";
+
+  // Аккуратно «прицеливаем» дрон точно под маркер — существующий lerp
+  // за несколько кадров доведёт его в нужную точку, пока маркер
+  // доспускается на свою финальную позицию.
+  if (state.markerRect) {
+    const targetCenter = state.markerRect.x + state.markerRect.width / 2;
+    state.droneTargetX = targetCenter - droneEl.offsetWidth / 2;
+  }
+
   state.winDelayTimeoutId = setTimeout(() => {
     state.winDelayTimeoutId = null;
     endGame(true);
@@ -390,6 +428,16 @@ function gameLoop(timestamp) {
   if (!state.lastFrame) state.lastFrame = timestamp;
   const deltaSec = Math.min(0.033, (timestamp - state.lastFrame) / 1000);
   state.lastFrame = timestamp;
+
+  // Режим «дрон долетает к маркеру»: маркер уже почти на финальной позиции
+  // (см. checkDeliveryReached), поэтому фиксируем мир и движем только дрон —
+  // ощущение, что это дрон долетает к маркеру, а не наоборот.
+  if (state.winning) {
+    updateDrone(deltaSec);
+    updateObstacles(deltaSec);
+    requestAnimationFrame(gameLoop);
+    return;
+  }
 
   const easyMode = getDifficultyMultiplier();
 
@@ -414,6 +462,7 @@ function gameLoop(timestamp) {
   updateDeliveryMarker();
   if (checkDeliveryReached()) {
     triggerWinSequence();
+    requestAnimationFrame(gameLoop);
     return;
   }
   checkCollisions(timestamp);
@@ -443,12 +492,12 @@ window.addEventListener("keyup", (event) => {
 });
 
 gameArea.addEventListener("click", (event) => {
-  if (!state.running) return;
+  if (!state.running || state.winning) return;
   pointerMoveHandler(event.clientX);
 });
 
 gameArea.addEventListener("pointerdown", (event) => {
-  if (!state.running) return;
+  if (!state.running || state.winning) return;
   if (event.pointerType === "touch") {
     state.touchDragActive = true;
     state.touchPointerId = event.pointerId;
@@ -458,7 +507,7 @@ gameArea.addEventListener("pointerdown", (event) => {
 });
 
 gameArea.addEventListener("pointermove", (event) => {
-  if (!state.running) return;
+  if (!state.running || state.winning) return;
   if (
     event.pointerType === "touch" &&
     state.touchDragActive &&
