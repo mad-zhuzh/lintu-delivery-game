@@ -42,13 +42,97 @@ body.embed-mode {
 }
 
 body.embed-mode .widget-shell {
+  width: 100%;
   min-height: 100%;
   height: 100%;
   box-shadow: none;
+  border: none;
+  border-radius: 0;
 }
 
 body.embed-mode .screen {
   min-height: 100%;
+}
+
+/* Дружелюбнее к низким iframe (модальные окна, мобильные шторки):
+   уменьшаем заголовок, иллюстрацию и внутренние отступы, чтобы контент
+   гарантированно влезал в карточку и нижний padding не обрезался
+   из-за overflow:hidden у .widget-shell. */
+@media (max-height: 700px) {
+  body.embed-mode #start-screen,
+  body.embed-mode #win-screen,
+  body.embed-mode #lose-screen {
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  body.embed-mode h1 {
+    font-size: 28px;
+  }
+
+  body.embed-mode .screen-subtitle {
+    margin-bottom: 12px;
+  }
+
+  body.embed-mode #start-screen .start-illustration {
+    max-height: 170px;
+    width: min(170px, 56%);
+  }
+
+  body.embed-mode #win-screen .win-illustration,
+  body.embed-mode #lose-screen .lose-illustration {
+    max-height: 160px;
+    width: min(160px, 54%);
+  }
+
+  body.embed-mode .instructions {
+    padding: 12px;
+  }
+}
+
+@media (max-height: 560px) {
+  body.embed-mode #start-screen,
+  body.embed-mode #win-screen,
+  body.embed-mode #lose-screen {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  body.embed-mode h1 {
+    font-size: 22px;
+  }
+
+  body.embed-mode .screen-subtitle {
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+
+  body.embed-mode #start-screen .start-illustration {
+    max-height: 110px;
+    width: min(110px, 38%);
+    margin-top: 0;
+    margin-bottom: 6px;
+  }
+
+  body.embed-mode #win-screen .win-illustration,
+  body.embed-mode #lose-screen .lose-illustration {
+    max-height: 100px;
+    width: min(100px, 36%);
+  }
+
+  body.embed-mode .instructions {
+    padding: 10px 14px;
+  }
+
+  body.embed-mode .instructions h2 {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+
+  body.embed-mode .instructions ul {
+    font-size: 13px;
+    line-height: 1.35;
+  }
 }
 
 .widget-shell {
