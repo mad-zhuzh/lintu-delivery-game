@@ -16,6 +16,12 @@ const OBSTACLE_SVG = {
   balloon: '<svg class="obs-svg" viewBox="0 0 46 46" aria-hidden="true" focusable="false"><use href="#sym-balloon"/></svg>'
 };
 
+const isEmbedMode = new URLSearchParams(window.location.search).get("embed") === "true";
+if (isEmbedMode) {
+  document.documentElement.classList.add("embed-mode");
+  document.body.classList.add("embed-mode");
+}
+
 const startScreen = document.getElementById("start-screen");
 const gameScreen = document.getElementById("game-screen");
 const winScreen = document.getElementById("win-screen");
