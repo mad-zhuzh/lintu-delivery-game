@@ -39,10 +39,14 @@ body.embed-mode {
   min-height: 100%;
   padding: 0;
   align-items: stretch;
+  justify-content: center;
 }
 
 body.embed-mode .widget-shell {
-  width: 100%;
+  /* На широких iframe (десктопная модалка) ограничиваем ширину,
+     чтобы карточка не «разъезжалась». На узких (<= 420px) занимает всю
+     ширину iframe, как раньше. */
+  width: min(420px, 100%);
   min-height: 100%;
   height: 100%;
   box-shadow: none;
